@@ -1,0 +1,84 @@
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="style.css">
+        <link rel="icon" href="favicon.ico" type="image/x-icon">
+        <script src="scripts.js"></script>
+    </head>
+    <body>
+        <div>
+            <label>
+                <input type="file" id="fileInput" accept=".txt" />
+                Select file
+            </label>
+        </div>
+        <div>
+            <pre id="fileContent"></pre>
+        </div>
+        <script>
+            document.getElementById('fileInput').addEventListener('change', function(event) {
+                var file = event.target.files[0];
+                var reader = new FileReader();
+    
+                reader.onload = function(event) {
+                    var contents = event.target.result;
+                    var lines = contents.split('\n');
+    
+                    var formattedContent = '';
+                    var names = []
+                    var total = []
+                    for (var i = 0; i < lines.length; i++) {
+                        if (lines[i].trim() != "") {
+                            var name
+                            if (lines[i].includes('(')) {
+                                // test ++;
+                                var aux = lines[i].trim().split("(")
+                                name = aux[0].trim()
+                            } else if (lines[i].includes('[')) {
+                                // test ++;
+                                var aux = lines[i].trim().split("[")
+                                name = aux[0].trim()
+                            } else {
+                                name = lines[i].trim()
+                            }
+                            if (!names.includes(name)) {
+                                names.push(name)
+                                total.push(1)
+                            }
+                            else {
+                                var pos = names.indexOf(name)
+                                var num = total[pos]
+                                total[pos] = num + 1
+                            }
+                        }
+                    }
+                    var summary = []
+                    for (var i = 0; i < names.length; i++) {
+                        summary[i] = []
+                        summary[i][0] = names[i]
+                        summary[i][1] = total[i]
+                    }
+                    summary.sort(function(a, b) {
+                        return b[1] - a[1];
+                    });                    
+                    for (var i = 0; i < summary.length; i++) {
+                        var row = summary[i]
+                        // formattedContent += row.join("  -  ") + '\n';
+                        formattedContent += row[0];
+                        var margin = 25 - (row[0].length + row[1].toString().length)
+                        var space = " "
+                        formattedContent += space.repeat(margin) + row[1];
+                        formattedContent += '\n';
+                    }
+                    document.getElementById('fileContent').style.display = 'block'
+                    document.getElementById('fileContent').textContent = formattedContent;
+                };
+    
+                reader.onerror = function() {
+                    console.error('Error al leer el archivo');
+                };
+    
+                reader.readAsText(file);
+            });
+        </script>
+    </body>
+</html>
